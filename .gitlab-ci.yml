@@ -1,0 +1,13 @@
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - ssh -p997 root@47.242.62.242 "
+      cd /root/docker/webService/ &&
+      docker stop qyyh_service &&
+      docker rm qyyh_service &&
+      docker image rm -f qyyh_service &&
+      docker build --no-cache . -t qyyh_service &&
+      docker run -v /root/web/file/robot:/go/file -p 5702:5702 --add-host host:172.17.0.1 --name qyyh_service -d qyyh_service"
