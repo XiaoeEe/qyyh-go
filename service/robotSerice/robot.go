@@ -66,29 +66,6 @@ func Robot(message model.CQMessage, _ *gin.Context) (data any, err error) {
 			if len(m) == 2 {
 				delEntry(message, m[1])
 			}
-		case "直播间":
-			if len(m) == 1 {
-				getLive(message)
-			}
-			if len(m) == 3 {
-				addLiveroom(message, m[1], m[2])
-			}
-		case "删除直播间":
-			if len(m) == 2 {
-				delLiveRoom(message, m[1])
-			}
-		case "蹲三核":
-			if len(m) == 1 {
-				wantGollux(message)
-			}
-		case "取消三核":
-			if len(m) == 1 {
-				delGollux(message)
-			}
-		case "三核":
-			if len(m) >= 2 {
-				runGollux(message, m)
-			}
 		case "gg":
 			if len(m) == 1 {
 				go func(message model.CQMessage) {
