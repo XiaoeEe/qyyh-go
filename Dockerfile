@@ -9,7 +9,7 @@ ENV GO111MODULE=on \
 
 WORKDIR /go
 
-RUN git clone http://xiaoe:zxc940429@ah.qyyh.net:9000/xiaoe/qyyh-go.git
+RUN git clone http://xiaoe:zxc940429@ah.qyyh.net:3000/xiaoe/qyyh-go.git
 
 WORKDIR /go/qyyh-go
 
