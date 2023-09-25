@@ -18,7 +18,7 @@ func At8() {
 	//清空每日福地缓存
 	table.CleanRoll()
 	//刷新qq群信息
-	refreshQQGroupInfo()
+	//refreshQQGroupInfo()
 	//刷新玩家信息
 	refreshPlayerInfo()
 }
