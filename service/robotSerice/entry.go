@@ -45,11 +45,14 @@ func getEntry(message model.CQMessage, m string) {
 
 func setEntry(message model.CQMessage, m []string) {
 	name := m[1]
+	if name == "" {
+		return
+	}
 	value := ""
 	for i := 2; i < len(m); i++ {
 		value += m[i] + " "
 	}
-	value = fomatMsg(value)
+	//value = fomatMsg(value)
 	if err := table.SaveEntry(table.Entry{
 		Name:  name,
 		Value: value,

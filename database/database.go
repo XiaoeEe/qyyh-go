@@ -13,7 +13,7 @@ func MysqlConnInit() {
 	c := config.GetConfig()
 
 	var err error
-	db, err = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4,utf8&parseTime=True&loc=Local", c.Mysqluser, c.Mysqlpwd, c.Mysqlhost, c.Mysqldb)), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4,utf8&parseTime=True&loc=Local", c.Mysqluser, c.Mysqlpwd, c.Mysqlhost, c.Mysqldbname)), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

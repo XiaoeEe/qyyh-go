@@ -1,15 +1,14 @@
 package main
 
 import (
-	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
 	"qyyh-go/database"
 	"qyyh-go/database/table"
-	"qyyh-go/model"
+	"regexp"
 	"strings"
-	"sync"
 	"testing"
 )
 
@@ -25,65 +24,48 @@ func Test(t *testing.T) {
 	fmt.Println("done")
 }
 
-func Test1(t *testing.T) {
-	database.MysqlConnInit()
-	rooms := table.GetLiveroomList()
-	wg := sync.WaitGroup{}
-	live := ""
-	unlive := ""
-	errored := ""
-	s := ""
-	for _, room := range rooms {
-		wg.Add(1)
-		go func(room table.Liveroom) {
-			defer wg.Done()
-			data := getBilibiliData(room.Uid)
-			if data.Data.LiveRoom.RoomStatus == 0 {
-				errored += fmt.Sprintf("%s的直播间:\n直播间状态获取错误\n", room.Nickname)
-				return
-			}
-			url := strings.Split(data.Data.LiveRoom.Url, "?")[0]
-			if data.Data.LiveRoom.LiveStatus == 0 {
-				unlive += fmt.Sprintf("%s的直播间:\n%s: %s\n", room.Nickname, data.Data.LiveRoom.Title, url)
-			} else {
-				live += fmt.Sprintf("%s的直播间:\n%s: %s\n", room.Nickname, data.Data.LiveRoom.Title, url)
-			}
-		}(room)
-	}
-	wg.Wait()
-	if live != "" {
-		s += fmt.Sprintf("正在直播的直播间:\n%s\n\n", live)
-	}
-	if unlive != "" {
-		s += fmt.Sprintf("没在直播的直播间:\n%s\n\n", unlive)
-	}
-	if errored != "" {
-		s += fmt.Sprintf("获取失败的直播间:\n%s", errored)
-	}
+func Test2(t *testing.T) {
+	s := "[CQ:image,file=aed5ed962d915dae5bf1fa9b28e67fe3.image,subType=11,url=https://gchat.qpic.cn/gchatpic_new/331767027/769964102-2493108392-AED5ED962D915DAE5BF1FA9B28E67FE3/0?term=2&amp;is_origin=0]"
+	maps := subCQCode(s)
+	base := getBase64(maps[0]["url"])
+	fmt.Println(base)
+
 }
 
-func getBilibiliData(uid string) model.BilibiliData {
-	for i := 0; i < 100; i++ {
-		data := model.BilibiliData{}
-		client := http.Client{}
-		get, err := http.NewRequest("GET", "https://api.bilibili.com/x/space/acc/info?mid="+uid, nil)
-		if err != nil {
-			return model.BilibiliData{}
+func getBase64(url string) string {
+
+	res, _ := http.Get(url)
+	defer res.Body.Close()
+
+	data, _ := io.ReadAll(res.Body)
+
+	return base64.StdEncoding.EncodeToString(data)
+}
+
+func subCQCode(cq string) []map[string]string {
+	reg := regexp.MustCompile(`\[([^]\[\r\n]*)]`)
+	var list []map[string]string
+
+	for _, s := range reg.FindAllString(cq, -1) {
+		ss := strings.Split(strings.ReplaceAll(strings.ReplaceAll(s, "[", ""), "]", ""), ",")
+		tmpMap := map[string]string{}
+		for _, item := range ss {
+			c := strings.Split(item, "=")
+			if len(c) == 1 {
+				tmpMap["type"] = c[0]
+			} else {
+				tmpMap[c[0]] = c[1]
+			}
 		}
-		get.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-		get.Header.Set("Cache-Control", "no-cache")
-		get.Header.Set("Connection", "keep-alive")
-		get.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.62")
-		do, err := client.Do(get)
-		if err != nil {
-			continue
-		}
-		readAll, err := io.ReadAll(do.Body)
-		err = json.Unmarshal(readAll, &data)
-		if err != nil {
-			continue
-		}
-		return data
+		list = append(list, tmpMap)
 	}
-	return model.BilibiliData{}
+	return list
+}
+
+type Config struct {
+	//本体数据库
+	Mysqlhost   string //mysql地址
+	Mysqluser   string //mysql用户名
+	Mysqlpwd    string //mysql密码
+	Mysqldbname string //mysql数据库名
 }

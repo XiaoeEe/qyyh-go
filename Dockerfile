@@ -19,7 +19,10 @@ FROM docker.io/jeanblanchard/alpine-glibc as main
 
 ENV GO111MODULE=on \
     GOPROXY=https://goproxy.cn \
-    GO_ENV=production
+    Mysqlhost=host:3306 \
+    Mysqluser=root \
+    Mysqlpwd=Zxc940429+++ \
+    Mysqldbname=qyyh
 
 RUN apk --update add tzdata && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
