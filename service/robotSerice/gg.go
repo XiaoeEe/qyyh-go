@@ -1,6 +1,7 @@
 package robotService
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/golang/freetype"
@@ -51,8 +52,12 @@ func GGForName(message model.CQMessage, name string) {
 		}
 		makeGGImg(gg)
 	}
-
-	SendGroupMsg(message, fmt.Sprintf("[CQ:image,file=https://file.qyyh.net/robot/gg/%s.png,cache=0]", name))
+	file, err := os.ReadFile(fmt.Sprintf("./file/gg/%s.png", name))
+	if err != nil {
+		return
+	}
+	baseCode := base64.StdEncoding.EncodeToString(file)
+	SendGroupMsg(message, fmt.Sprintf("[CQ:image,file=base64://%s]", baseCode))
 }
 
 func makeGGImg(gg model.GG) {
